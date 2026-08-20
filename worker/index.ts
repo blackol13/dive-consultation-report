@@ -1,6 +1,7 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { consultationsTableSql } from "../db/schema";
 
 interface Env {
   ASSETS: Fetcher;
@@ -29,6 +30,40 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/consultations") {
+      await env.DB.prepare(consultationsTableSql).run();
+      const consultationColumns = await env.DB.prepare("PRAGMA table_info(consultations)").all<{name:string}>();
+      if (!consultationColumns.results.some(column => column.name === "stt_summary")) {
+        await env.DB.prepare("ALTER TABLE consultations ADD COLUMN stt_summary TEXT NOT NULL DEFAULT ''").run();
+      }
+      if (request.method === "GET") {
+        const result = await env.DB.prepare("SELECT id, form_json, step, has_rtp, rtp_file, audio_file, summary, stt_summary, consultation_summary, director_comment, status, updated_at FROM consultations ORDER BY updated_at DESC").all<{
+          id:string;form_json:string;step:number;has_rtp:number;rtp_file:string;audio_file:string;summary:string;stt_summary:string;consultation_summary:string;director_comment:string;status:string;updated_at:string
+        }>();
+        return Response.json({ consultations: result.results.map(row=>({id:row.id,form:JSON.parse(row.form_json),step:row.step,hasRtp:Boolean(row.has_rtp),rtp:row.rtp_file,audio:row.audio_file,summary:row.summary,sttSummary:row.stt_summary,consult:row.consultation_summary,comment:row.director_comment,status:row.status,updatedAt:row.updated_at})) });
+      }
+      if (request.method === "POST" || request.method === "PUT") {
+        const body = await request.json() as {id?:string;form:unknown;step:number;hasRtp:boolean;rtp:string;audio:string;summary:string;sttSummary:string;consult:string;comment:string;status:string};
+        const id = body.id || crypto.randomUUID();
+        const now = new Date().toISOString();
+        if (request.method === "POST") {
+          await env.DB.prepare("INSERT INTO consultations (id, form_json, step, has_rtp, rtp_file, audio_file, summary, stt_summary, consultation_summary, director_comment, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            .bind(id,JSON.stringify(body.form),body.step,body.hasRtp?1:0,body.rtp||"",body.audio||"",body.summary||"",body.sttSummary||"",body.consult||"",body.comment||"",body.status||"상담 대기",now,now).run();
+        } else {
+          await env.DB.prepare("UPDATE consultations SET form_json = ?, step = ?, has_rtp = ?, rtp_file = ?, audio_file = ?, summary = ?, stt_summary = ?, consultation_summary = ?, director_comment = ?, status = ?, updated_at = ? WHERE id = ?")
+            .bind(JSON.stringify(body.form),body.step,body.hasRtp?1:0,body.rtp||"",body.audio||"",body.summary||"",body.sttSummary||"",body.consult||"",body.comment||"",body.status||"상담 대기",now,id).run();
+        }
+        return Response.json({ id });
+      }
+      if (request.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return Response.json({ error: "상담 ID가 필요합니다." }, { status: 400 });
+        await env.DB.prepare("DELETE FROM consultations WHERE id = ?").bind(id).run();
+        return Response.json({ ok: true });
+      }
+      return new Response("Method not allowed", { status: 405 });
+    }
 
     if (url.pathname === "/api/files") {
       await env.DB.prepare(`CREATE TABLE IF NOT EXISTS attachments (
