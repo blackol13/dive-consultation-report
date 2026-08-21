@@ -4,12 +4,18 @@ export const consultationsTableSql = `CREATE TABLE IF NOT EXISTS consultations (
   step INTEGER NOT NULL DEFAULT 1,
   has_rtp INTEGER NOT NULL DEFAULT 1,
   rtp_file TEXT NOT NULL DEFAULT '',
+  rtp_result_json TEXT NOT NULL DEFAULT '',
   audio_file TEXT NOT NULL DEFAULT '',
   summary TEXT NOT NULL DEFAULT '',
   stt_summary TEXT NOT NULL DEFAULT '',
   consultation_summary TEXT NOT NULL DEFAULT '',
   director_comment TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT '상담 대기',
+  enrollment_status TEXT NOT NULL DEFAULT '미확인',
+  enrollment_date TEXT NOT NULL DEFAULT '',
+  enrollment_note TEXT NOT NULL DEFAULT '',
+  staff_note TEXT NOT NULL DEFAULT '',
+  staff_note_shared INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 )`;
