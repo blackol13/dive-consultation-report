@@ -94,8 +94,8 @@ const worker = {
         const category = String(form.get("category") ?? "");
         if (!(file instanceof File) || !["rtp", "consultation"].includes(category)) return Response.json({ error: "올바른 파일을 선택해 주세요." }, { status: 400 });
         const isRtp = category === "rtp" && file.type === "application/pdf";
-        const isRecording = category === "consultation" && (file.type === "audio/wav" || file.type === "audio/x-wav" || file.type === "video/mp4");
-        if (!isRtp && !isRecording) return Response.json({ error: category === "rtp" ? "PDF 파일만 등록할 수 있습니다." : "WAV 또는 MP4 파일만 등록할 수 있습니다." }, { status: 400 });
+        const isRecording = category === "consultation" && (file.type === "audio/wav" || file.type === "audio/x-wav" || file.type === "video/mp4" || file.type === "audio/webm");
+        if (!isRtp && !isRecording) return Response.json({ error: category === "rtp" ? "PDF 파일만 등록할 수 있습니다." : "WAV, MP4 또는 WEBM 파일만 등록할 수 있습니다." }, { status: 400 });
         const id = crypto.randomUUID();
         await env.FILES.put(id, file.stream(), { httpMetadata: { contentType: file.type } });
         await env.DB.prepare("INSERT INTO attachments (id, name, category, content_type, size, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(id, file.name, category, file.type, file.size, new Date().toISOString()).run();
