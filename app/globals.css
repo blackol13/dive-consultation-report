@@ -250,3 +250,6 @@
 
 .history-card .history-row.header>span:nth-child(3){font-size:0}
 .history-card .history-row.header>span:nth-child(3):after{content:"상담 예약 일정";font-size:9px}
+
+.consultation-schedule-fields{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:8px}.consultation-schedule-fields input{width:100%;min-width:0}.consultation-schedule-fields input[type="time"]{padding-left:12px;padding-right:9px}
+@media(max-width:520px){.consultation-schedule-fields{grid-template-columns:minmax(0,1fr) 116px;gap:6px}}
