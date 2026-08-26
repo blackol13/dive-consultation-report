@@ -247,3 +247,6 @@
 .history-card .history-table{height:auto;min-height:0;overflow-x:auto;overflow-y:visible}
 .history-card .history-empty{height:auto;min-height:120px}
 @media(max-width:700px){.history-card .history-table{height:auto;min-height:0}}
+
+.history-card .history-row.header>span:nth-child(3){font-size:0}
+.history-card .history-row.header>span:nth-child(3):after{content:"상담 예약 일정";font-size:9px}
