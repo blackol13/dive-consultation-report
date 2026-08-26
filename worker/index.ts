@@ -44,6 +44,7 @@ const worker = {
         ["staff_note", "TEXT NOT NULL DEFAULT ''"],
         ["staff_note_shared", "INTEGER NOT NULL DEFAULT 0"],
         ["rtp_result_json", "TEXT NOT NULL DEFAULT ''"],
+        ["is_new", "INTEGER NOT NULL DEFAULT 0"],
       ] as const;
       for (const [name, definition] of extraColumns) {
         if (!consultationColumns.results.some(column => column.name === name)) {
@@ -51,23 +52,29 @@ const worker = {
         }
       }
       if (request.method === "GET") {
-        const result = await env.DB.prepare("SELECT id, form_json, step, has_rtp, rtp_file, rtp_result_json, audio_file, summary, stt_summary, consultation_summary, director_comment, status, enrollment_status, enrollment_date, enrollment_note, staff_note, staff_note_shared, updated_at FROM consultations ORDER BY updated_at DESC").all<{
-          id:string;form_json:string;step:number;has_rtp:number;rtp_file:string;rtp_result_json:string;audio_file:string;summary:string;stt_summary:string;consultation_summary:string;director_comment:string;status:string;enrollment_status:string;enrollment_date:string;enrollment_note:string;staff_note:string;staff_note_shared:number;updated_at:string
+        const result = await env.DB.prepare("SELECT id, form_json, step, has_rtp, rtp_file, rtp_result_json, audio_file, summary, stt_summary, consultation_summary, director_comment, status, enrollment_status, enrollment_date, enrollment_note, staff_note, staff_note_shared, is_new, updated_at FROM consultations ORDER BY updated_at DESC").all<{
+          id:string;form_json:string;step:number;has_rtp:number;rtp_file:string;rtp_result_json:string;audio_file:string;summary:string;stt_summary:string;consultation_summary:string;director_comment:string;status:string;enrollment_status:string;enrollment_date:string;enrollment_note:string;staff_note:string;staff_note_shared:number;is_new:number;updated_at:string
         }>();
-        return Response.json({ consultations: result.results.map(row=>({id:row.id,form:JSON.parse(row.form_json),step:row.step,hasRtp:Boolean(row.has_rtp),rtp:row.rtp_file,rtpResult:row.rtp_result_json?JSON.parse(row.rtp_result_json):null,audio:row.audio_file,summary:row.summary,sttSummary:row.stt_summary,consult:row.consultation_summary,comment:row.director_comment,status:row.status,enrollmentStatus:row.enrollment_status,enrollmentDate:row.enrollment_date,enrollmentNote:row.enrollment_note,staffNote:row.staff_note,staffNoteShared:Boolean(row.staff_note_shared),updatedAt:row.updated_at})) });
+        return Response.json({ consultations: result.results.map(row=>({id:row.id,form:JSON.parse(row.form_json),step:row.step,hasRtp:Boolean(row.has_rtp),rtp:row.rtp_file,rtpResult:row.rtp_result_json?JSON.parse(row.rtp_result_json):null,audio:row.audio_file,summary:row.summary,sttSummary:row.stt_summary,consult:row.consultation_summary,comment:row.director_comment,status:row.status,enrollmentStatus:row.enrollment_status,enrollmentDate:row.enrollment_date,enrollmentNote:row.enrollment_note,staffNote:row.staff_note,staffNoteShared:Boolean(row.staff_note_shared),isNew:Boolean(row.is_new),updatedAt:row.updated_at})) });
       }
       if (request.method === "POST" || request.method === "PUT") {
         const body = await request.json() as {id?:string;form:unknown;step:number;hasRtp:boolean;rtp:string;rtpResult?:unknown;audio:string;summary:string;sttSummary:string;consult:string;comment:string;status:string;enrollmentStatus?:string;enrollmentDate?:string;enrollmentNote?:string;staffNote?:string;staffNoteShared?:boolean};
         const id = body.id || crypto.randomUUID();
         const now = new Date().toISOString();
         if (request.method === "POST") {
-          await env.DB.prepare("INSERT INTO consultations (id, form_json, step, has_rtp, rtp_file, rtp_result_json, audio_file, summary, stt_summary, consultation_summary, director_comment, status, enrollment_status, enrollment_date, enrollment_note, staff_note, staff_note_shared, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-            .bind(id,JSON.stringify(body.form),body.step,body.hasRtp?1:0,body.rtp||"",body.rtpResult?JSON.stringify(body.rtpResult):"",body.audio||"",body.summary||"",body.sttSummary||"",body.consult||"",body.comment||"",body.status||"상담 대기",body.enrollmentStatus||"미확인",body.enrollmentDate||"",body.enrollmentNote||"",body.staffNote||"",body.staffNoteShared?1:0,now,now).run();
+          await env.DB.prepare("INSERT INTO consultations (id, form_json, step, has_rtp, rtp_file, rtp_result_json, audio_file, summary, stt_summary, consultation_summary, director_comment, status, enrollment_status, enrollment_date, enrollment_note, staff_note, staff_note_shared, is_new, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            .bind(id,JSON.stringify(body.form),body.step,body.hasRtp?1:0,body.rtp||"",body.rtpResult?JSON.stringify(body.rtpResult):"",body.audio||"",body.summary||"",body.sttSummary||"",body.consult||"",body.comment||"",body.status||"상담 대기",body.enrollmentStatus||"미확인",body.enrollmentDate||"",body.enrollmentNote||"",body.staffNote||"",body.staffNoteShared?1:0,1,now,now).run();
         } else {
           await env.DB.prepare("UPDATE consultations SET form_json = ?, step = ?, has_rtp = ?, rtp_file = ?, rtp_result_json = ?, audio_file = ?, summary = ?, stt_summary = ?, consultation_summary = ?, director_comment = ?, status = ?, enrollment_status = ?, enrollment_date = ?, enrollment_note = ?, staff_note = ?, staff_note_shared = ?, updated_at = ? WHERE id = ?")
             .bind(JSON.stringify(body.form),body.step,body.hasRtp?1:0,body.rtp||"",body.rtpResult?JSON.stringify(body.rtpResult):"",body.audio||"",body.summary||"",body.sttSummary||"",body.consult||"",body.comment||"",body.status||"상담 대기",body.enrollmentStatus||"미확인",body.enrollmentDate||"",body.enrollmentNote||"",body.staffNote||"",body.staffNoteShared?1:0,now,id).run();
         }
         return Response.json({ id });
+      }
+      if (request.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return Response.json({ error: "상담 ID가 필요합니다." }, { status: 400 });
+        await env.DB.prepare("UPDATE consultations SET is_new = 0 WHERE id = ?").bind(id).run();
+        return Response.json({ ok: true });
       }
       if (request.method === "DELETE") {
         const id = url.searchParams.get("id");

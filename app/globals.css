@@ -255,3 +255,4 @@
 @media(max-width:520px){.consultation-schedule-fields{grid-template-columns:minmax(0,1fr) 116px;gap:6px}}
 
 .materials-student-context{padding:0;overflow:hidden}.materials-student-context .result-student-meta{border:0;border-radius:0;box-shadow:none}.materials-student-context .materials-staff-note{margin:0;padding:17px 22px;border-top:1px solid #e4eaf2;background:#f8fbff}.materials-student-context .materials-staff-note.has-note{background:#f3fbf8}
+.new-reservation-badge{display:inline-flex;align-items:center;margin-left:8px;padding:2px 7px;border:1px solid #bfd2ff;border-radius:999px;background:#eaf1ff;color:#2869e8;font-size:10px;font-weight:900;line-height:1.2;vertical-align:2px;letter-spacing:.04em}

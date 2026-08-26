@@ -16,6 +16,7 @@ export const consultationsTableSql = `CREATE TABLE IF NOT EXISTS consultations (
   enrollment_note TEXT NOT NULL DEFAULT '',
   staff_note TEXT NOT NULL DEFAULT '',
   staff_note_shared INTEGER NOT NULL DEFAULT 0,
+  is_new INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 )`;
