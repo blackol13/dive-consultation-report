@@ -253,3 +253,5 @@
 
 .consultation-schedule-fields{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:8px}.consultation-schedule-fields input{width:100%;min-width:0}.consultation-schedule-fields input[type="time"]{padding-left:12px;padding-right:9px}
 @media(max-width:520px){.consultation-schedule-fields{grid-template-columns:minmax(0,1fr) 116px;gap:6px}}
+
+.materials-student-context{padding:0;overflow:hidden}.materials-student-context .result-student-meta{border:0;border-radius:0;box-shadow:none}.materials-student-context .materials-staff-note{margin:0;padding:17px 22px;border-top:1px solid #e4eaf2;background:#f8fbff}.materials-student-context .materials-staff-note.has-note{background:#f3fbf8}
