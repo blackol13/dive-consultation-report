@@ -9,7 +9,8 @@ const consultationColumns = [
   ["stt_summary", "TEXT NOT NULL DEFAULT ''"], ["enrollment_status", "TEXT NOT NULL DEFAULT '미확인'"],
   ["enrollment_date", "TEXT NOT NULL DEFAULT ''"], ["enrollment_note", "TEXT NOT NULL DEFAULT ''"],
   ["staff_note", "TEXT NOT NULL DEFAULT ''"], ["staff_note_shared", "INTEGER NOT NULL DEFAULT 0"],
-  ["rtp_result_json", "TEXT NOT NULL DEFAULT ''"], ["is_new", "INTEGER NOT NULL DEFAULT 0"],
+  ["rtp_result_json", "TEXT NOT NULL DEFAULT ''"], ["rtp_skipped", "INTEGER NOT NULL DEFAULT 0"],
+  ["audio_skipped", "INTEGER NOT NULL DEFAULT 0"], ["is_new", "INTEGER NOT NULL DEFAULT 0"],
   ["student_id", "TEXT"], ["scheduled_at", "TEXT NOT NULL DEFAULT ''"],
   ["assigned_director", "TEXT NOT NULL DEFAULT ''"], ["deleted_at", "TEXT"],
 ] as const;
@@ -44,7 +45,8 @@ export function scheduledAt(form: ConsultationForm) {
 export async function ensureOperationalDatabase(db: D1Database) {
   await db.prepare("CREATE TABLE IF NOT EXISTS app_schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)").run();
   const migration = await db.prepare("SELECT MAX(version) AS version FROM app_schema_migrations").first<{ version: number | null }>();
-  if ((migration?.version || 0) >= 1) return;
+  const currentVersion = migration?.version || 0;
+  if (currentVersion >= 2) return;
   await db.batch([db.prepare(legacyConsultationsTableSql), db.prepare(legacyAttachmentsSql)]);
   await addMissingColumns(db, "consultations", consultationColumns);
   await addMissingColumns(db, "attachments", attachmentColumns);
@@ -76,6 +78,7 @@ export async function ensureOperationalDatabase(db: D1Database) {
   await db.batch([
     db.prepare("UPDATE attachments SET storage_key = id, updated_at = created_at WHERE storage_key = ''"),
     db.prepare("INSERT OR IGNORE INTO app_schema_migrations (version, applied_at) VALUES (1, ?)").bind(appliedAt),
+    db.prepare("INSERT OR IGNORE INTO app_schema_migrations (version, applied_at) VALUES (2, ?)").bind(appliedAt),
     db.prepare("PRAGMA optimize"),
   ]);
 }

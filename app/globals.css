@@ -211,6 +211,7 @@
 .material-source select{min-height:42px}
 .material-drop{min-height:96px}
 .material-details{display:flex;flex-direction:column;gap:12px;min-width:0}
+.material-card-head>div{min-width:0}.material-skip-option{margin-left:auto;display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #cfdcec;border-radius:9px;background:#fff;color:#455d7a;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}.material-skip-option input{width:16px;height:16px;margin:0;accent-color:#246cf0}.material-card.skipped{border-color:#b9cae2;background:#fbfcfe}.material-card.skipped .material-card-body{opacity:.48}.material-card.skipped .material-drop{cursor:not-allowed}.materials-validation{margin:0;padding:12px 15px;border:1px solid #f2c5c5;border-radius:10px;background:#fff5f5;color:#b13434;font-size:13px;font-weight:750}.materials-validation+.footer-actions{margin-top:0}
 .material-file b{font-size:12px}
 .material-meta{margin-top:0;flex:1}
 @media(max-width:900px){.material-card-body{grid-template-columns:1fr}.material-meta dl{grid-template-columns:repeat(3,1fr)}}

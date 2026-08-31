@@ -19,7 +19,8 @@ export const consultations = sqliteTable("consultations", {
   id: text("id").primaryKey(), studentId: text("student_id").references(() => students.id, { onDelete: "restrict" }),
   formJson: text("form_json").notNull(), scheduledAt: text("scheduled_at").notNull().default(""), step: integer("step").notNull().default(1),
   hasRtp: integer("has_rtp", { mode: "boolean" }).notNull().default(false), rtpFile: text("rtp_file").notNull().default(""),
-  rtpResultJson: text("rtp_result_json").notNull().default(""), audioFile: text("audio_file").notNull().default(""), summary: text("summary").notNull().default(""),
+  rtpSkipped: integer("rtp_skipped", { mode: "boolean" }).notNull().default(false), rtpResultJson: text("rtp_result_json").notNull().default(""),
+  audioFile: text("audio_file").notNull().default(""), audioSkipped: integer("audio_skipped", { mode: "boolean" }).notNull().default(false), summary: text("summary").notNull().default(""),
   sttSummary: text("stt_summary").notNull().default(""), consultationSummary: text("consultation_summary").notNull().default(""),
   directorComment: text("director_comment").notNull().default(""), status: text("status").notNull().default("상담 대기"),
   enrollmentStatus: text("enrollment_status").notNull().default("미확인"), enrollmentDate: text("enrollment_date").notNull().default(""),
@@ -53,7 +54,7 @@ export const attachments = sqliteTable("attachments", {
 
 export const legacyConsultationsTableSql = `CREATE TABLE IF NOT EXISTS consultations (
   id TEXT PRIMARY KEY, form_json TEXT NOT NULL, step INTEGER NOT NULL DEFAULT 1, has_rtp INTEGER NOT NULL DEFAULT 0,
-  rtp_file TEXT NOT NULL DEFAULT '', rtp_result_json TEXT NOT NULL DEFAULT '', audio_file TEXT NOT NULL DEFAULT '', summary TEXT NOT NULL DEFAULT '',
+  rtp_file TEXT NOT NULL DEFAULT '', rtp_skipped INTEGER NOT NULL DEFAULT 0, rtp_result_json TEXT NOT NULL DEFAULT '', audio_file TEXT NOT NULL DEFAULT '', audio_skipped INTEGER NOT NULL DEFAULT 0, summary TEXT NOT NULL DEFAULT '',
   stt_summary TEXT NOT NULL DEFAULT '', consultation_summary TEXT NOT NULL DEFAULT '', director_comment TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT '상담 대기',
   enrollment_status TEXT NOT NULL DEFAULT '미확인', enrollment_date TEXT NOT NULL DEFAULT '', enrollment_note TEXT NOT NULL DEFAULT '', staff_note TEXT NOT NULL DEFAULT '',
   staff_note_shared INTEGER NOT NULL DEFAULT 0, is_new INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
