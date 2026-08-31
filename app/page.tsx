@@ -33,7 +33,7 @@ const skills=[["어휘력",78,"학년 평균보다 풍부한 어휘를 이해하
 
 export default function Home(){
  const [view,setView]=useState<View>("dashboard");
- const [historyFilter,setHistoryFilter]=useState("");
+ const [historyFilter,setHistoryFilter]=useState("상담 대기");
  const [quickRecordingRequest,setQuickRecordingRequest]=useState(0);
  const [pendingConsultation,setPendingConsultation]=useState<Form|null>(null);
  const [draftId,setDraftId]=useState("");
@@ -88,7 +88,7 @@ export default function Home(){
  const toggleReportComplete=()=>{const next=!reportComplete;completedReportSnapshot.current=next?reportContentSnapshot:"";setReportComplete(next);setShowShare(false);setConsultationStatus(next?"작성 완료":"상담 작성 중");setNotice(next?"결과지 작성이 완료되었습니다. 결과 공유가 활성화되었습니다.":"결과지를 다시 수정할 수 있습니다. 상담 작성 중 상태로 변경되었습니다.")};
  const openReportHtml=()=>{const reports=[...document.querySelectorAll<HTMLElement>(".report")].map(report=>report.outerHTML).join("");const styles=[...document.querySelectorAll<HTMLLinkElement|HTMLStyleElement>('link[rel="stylesheet"], style')].map(node=>node.outerHTML).join("");const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${window.location.origin}/"><title>${form.name||"학생"} 상담 결과지</title>${styles}<style>body{padding:76px 24px 40px}.html-report-toolbar{position:fixed;z-index:100;top:0;left:0;right:0;height:58px;background:#173a67;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 4px 18px #172b4930}.html-report-toolbar b{font-size:14px}.html-report-toolbar button{border:0;border-radius:8px;background:#fff;color:#21558f;padding:10px 16px;font-weight:800}.report{margin-bottom:24px}@media print{body{padding:0}.html-report-toolbar{display:none}.report{margin:0}}</style></head><body><div class="html-report-toolbar"><b>${form.name||"학생"} 상담 결과지</b><button onclick="window.print()">PDF 저장 / 인쇄</button></div>${reports}</body></html>`;const url=URL.createObjectURL(new Blob([html],{type:"text/html;charset=utf-8"}));const win=window.open(url,"_blank");if(!win){URL.revokeObjectURL(url);setNotice("새 창이 차단되었습니다. 팝업을 허용한 뒤 다시 시도해 주세요.");return}win.focus();setTimeout(()=>URL.revokeObjectURL(url),60000)};
  const resetNewConsultation=()=>{if(rtpUrl)URL.revokeObjectURL(rtpUrl);setPendingConsultation(null);setDraftId("");setConsultationStatus("상담 대기");setDeliveryCompletedAt("");setReportComplete(false);completedReportSnapshot.current="";setEnrollmentStatus("미확인");setEnrollmentDate("");setEnrollmentNote("");setStaffNote("");setStaffNoteShared(false);setShowShare(false);setShowDeliveryConfirm(false);setForm({...initialForm,applicationDate:today(),date:today()});setStep(1);setHighestVisitedStep(1);setHasRtp(false);setRtp("");setRtpUrl("");setRtpSkipped(false);setRtpResult(null);setAudio("");setAudioSkipped(false);setSummary("");setSttSummary("");setConsult("");setComment("");setLoading(false);setNotice("")};
- const go=(next:View)=>{setView(next);setNotice("");setShowShare(false);if(next==="history")setHistoryFilter("");if(next==="new")resetNewConsultation()};
+ const go=(next:View)=>{setView(next);setNotice("");setShowShare(false);if(next==="history")setHistoryFilter("상담 대기");if(next==="new")resetNewConsultation()};
  const openHistory=(status:string)=>{setHistoryFilter(status);setView("history");setNotice("");setShowShare(false)};
  const openQuickRecording=()=>{setQuickRecordingRequest(Date.now());setView("files");setNotice("");setShowShare(false)};
  return <main>
