@@ -31,6 +31,25 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
+    if (url.pathname === "/api/settings") {
+      await ensureOperationalDatabase(env.DB);
+      const defaults = ["월-수-금 14:00~15:10","월-수-금 15:20~16:30","월-수-금 16:40~17:50","월-수-금 18:00~19:10","화-목-금 15:00~16:10","화-목-금 16:20~17:30","화-목-금 17:30~18:40"];
+      if (request.method === "GET") {
+        const row = await env.DB.prepare("SELECT value_json FROM app_settings WHERE key = 'dive_class_options'").first<{value_json:string}>();
+        return Response.json({ diveClassOptions: row ? JSON.parse(row.value_json) : defaults });
+      }
+      if (request.method === "PUT") {
+        const body = await request.json() as {diveClassOptions?:unknown};
+        if (!Array.isArray(body.diveClassOptions)) return Response.json({error:"반 시간표가 올바르지 않습니다."},{status:400});
+        const options = [...new Set(body.diveClassOptions.map(value=>String(value).trim()).filter(Boolean))];
+        if (!options.length || options.length > 30 || options.some(value=>value.length>80)) return Response.json({error:"반 시간표는 1~30개, 항목당 80자 이내로 입력해 주세요."},{status:400});
+        const now = new Date().toISOString();
+        await env.DB.prepare("INSERT INTO app_settings (key, value_json, updated_at) VALUES ('dive_class_options', ?, ?) ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at").bind(JSON.stringify(options),now).run();
+        return Response.json({diveClassOptions:options});
+      }
+      return new Response("Method not allowed",{status:405});
+    }
+
     if (url.pathname === "/api/consultations") {
       await ensureOperationalDatabase(env.DB);
       if (request.method === "GET") {

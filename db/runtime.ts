@@ -2,7 +2,7 @@ import { legacyConsultationsTableSql, operationalSchemaSql } from "./schema";
 
 export type ConsultationForm = {
   name?: string; schoolType?: string; school?: string; grade?: string; guardianPhone?: string;
-  date?: string; consultationTime?: string; level?: string; className?: string; director?: string;
+  date?: string; consultationTime?: string; level?: string; className?: string; studentLevel?: string; diveClass?: string; director?: string;
 };
 
 const consultationColumns = [
@@ -46,7 +46,7 @@ export async function ensureOperationalDatabase(db: D1Database) {
   await db.prepare("CREATE TABLE IF NOT EXISTS app_schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)").run();
   const migration = await db.prepare("SELECT MAX(version) AS version FROM app_schema_migrations").first<{ version: number | null }>();
   const currentVersion = migration?.version || 0;
-  if (currentVersion >= 2) return;
+  if (currentVersion >= 3) return;
   await db.batch([db.prepare(legacyConsultationsTableSql), db.prepare(legacyAttachmentsSql)]);
   await addMissingColumns(db, "consultations", consultationColumns);
   await addMissingColumns(db, "attachments", attachmentColumns);
@@ -79,6 +79,7 @@ export async function ensureOperationalDatabase(db: D1Database) {
     db.prepare("UPDATE attachments SET storage_key = id, updated_at = created_at WHERE storage_key = ''"),
     db.prepare("INSERT OR IGNORE INTO app_schema_migrations (version, applied_at) VALUES (1, ?)").bind(appliedAt),
     db.prepare("INSERT OR IGNORE INTO app_schema_migrations (version, applied_at) VALUES (2, ?)").bind(appliedAt),
+    db.prepare("INSERT OR IGNORE INTO app_schema_migrations (version, applied_at) VALUES (3, ?)").bind(appliedAt),
     db.prepare("PRAGMA optimize"),
   ]);
 }
