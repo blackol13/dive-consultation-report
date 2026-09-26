@@ -39,3 +39,6 @@ yarn-error.log*
 /outputs/
 /work/
 /.runtime/
+
+# typescript
+*.tsbuildinfo
