@@ -1,4 +1,27 @@
-# vinext-starter
+# DIVE 상담 리포트
+
+학생 상담 예약 → 자료 등록 → 결과 작성 → 학부모 공유 → 등록 후속 관리를 하나의 상담 기록으로 관리하는 내부 서비스.
+제품 기획은 [DIVE_PRODUCT_SPEC.md](DIVE_PRODUCT_SPEC.md), 개발 인수인계는 [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) 참고.
+
+## 로컬 미리보기
+
+Node.js `>=22.13.0` 필요. macOS/Linux/Windows(PowerShell) 모두 같은 명령으로 동작한다.
+
+```bash
+npm install
+npm run dev:preview   # http://localhost:3000 (LAN 접근 허용: --host 0.0.0.0)
+npm run seed          # 다른 터미널에서 1회 실행: 샘플 상담 7건 + PDF/WAV 첨부 등록
+```
+
+- 로컬 D1/R2는 Miniflare가 `.wrangler/` 아래에 시뮬레이션한다. 라이브 데이터와 분리되어 있다.
+- 로컬 데이터를 초기화하려면 개발 서버를 끄고 `.wrangler/` 폴더를 삭제한 뒤 다시 `npm run seed`.
+- `npm run seed`는 이미 상담이 있으면 건너뛴다(`npm run seed -- --force`로 추가 삽입). 로컬 주소 외에는 실행을 거부한다.
+- 샘플은 오늘(Asia/Seoul) 기준 날짜로 생성되므로 Today/Upcoming/Past 태그와 4개 상태 필터를 모두 확인할 수 있다.
+- Claude Code 데스크톱 미리보기는 `.claude/launch.json`(`dive-dev`, 포트 3000)을 사용한다.
+
+---
+
+## (참고) vinext-starter 템플릿 안내
 
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
